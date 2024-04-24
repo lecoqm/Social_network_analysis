@@ -17,11 +17,13 @@ def contraintes(D):
     for i in range(np.shape(D)[0]):
         for j in range(np.shape(D)[0]):
             for k in range(np.shape(D)[0]):
-                print(D)
-                contrainte = {'type': 'ineq', 'fun': lambda D, i=i, j=j, k=k: D[i][j]+D[j][k]-D[i][k]}
+                if i != j and i != k and j != k:
+                    print(i,j,k)
+                    contrainte = {'type': 'ineq', 'fun': lambda D, i=i, j=j, k=k: D[i][j]+D[j][k]-D[i][k]}
+                    contraintes.append(contrainte)
+            if i != j:
+                contrainte = {'type': 'ineq', 'fun': lambda D, i=i, j=j: D[i][j]}
                 contraintes.append(contrainte)
-            contrainte = {'type': 'ineq', 'fun': lambda D, i=i, j=j: D[i][j]}
-            contraintes.append(contrainte)
     return contraintes
 
 def MLE(Y):
