@@ -1,39 +1,46 @@
 import numpy as np
-from scipy.optimize import minimize
+from sklearn.manifold import MDS
+import pandas as pd
+import matplotlib.pyplot as plt
 
-def vraisemblance(D, Y):
-    D = np.reshape(D,np.shape(Y))
-    vraissemblance = 0
-    for i in range (np.shape(Y)[0]):
-        for j in range (np.shape(Y)[0]):
-            if i != j:
-                vraissemblance += Y[i][j] * (1-D[i][j]) - np.log(1+np.exp(1-D[i][j]))
-    return - vraissemblance
-
-def contraintes(D):
-    n = n = int(np.sqrt(len(D)))
-    D = np.reshape(D,(n,n))
-    contraintes = []
-    for i in range(np.shape(D)[0]):
-        for j in range(np.shape(D)[0]):
-            for k in range(np.shape(D)[0]):
-                if i != j and i != k and j != k:
-                    print(i,j,k)
-                    contrainte = {'type': 'ineq', 'fun': lambda D, i=i, j=j, k=k: D[i][j]+D[j][k]-D[i][k]}
-                    contraintes.append(contrainte)
-            if i != j:
-                contrainte = {'type': 'ineq', 'fun': lambda D, i=i, j=j: D[i][j]}
-                contraintes.append(contrainte)
-    return contraintes
-
-def MLE(Y):
-    D = np.zeros(np.shape(Y)[0]**2)
-    resultat = minimize(vraisemblance, D, args=(Y,), constraints=contraintes(D), method='SLSQP')
-    D = resultat.x.reshape((n, n))
+def distance_graphe(Y):
+    """
+    Calcule la distance entre les noeuds comme le nombre minimal
+    d'arêtes entre les noeuds
+    (renvoie n=nombre de sommets si pas de lien)
+    """
+    n = np.shape(Y)[0]
+    # On détermine notre Y_{1}
+    Yr = np.copy(Y)
+    # On modifie progressivement notre distance : on a déjà les noeuds à distance de 1 les uns des autres
+    D = np.copy(Y)
+    D = Y * (Y == 1) + n * (Y == 0)
+    for r in range(2, n):
+        # On détermine notre Y_{r+1}
+        Yr = np.dot(Yr, Y)
+        # On modifie notre distance pour les paires de noeuds n'ayant pas de distance plus courte
+        D += (r - n) * ((Yr > 0) & (D == n))
+    # On met bien des 0 sur la diagonale de D
+    np.fill_diagonal(D, 0)
     return D
 
+def MLE(Y, k=2):
+    """
+    Renvoie une liste de point de dimension k correpondant au MLE de la matrice Y
+    """
+    D = distance_graphe(Y)
+    Z = np.linalg.svd(D)[0][:, :k] # On 
+    Z = Z - np.mean(Z, axis=0) # on centre le nuage de points
+    return Z
 
-relations = np.loadtxt("data/Florentine_families.csv", delimiter=',')
+"""
+data = np.loadtxt("data/Florentine_families.csv", delimiter=',')
 
-D = MLE(relations)
-print(D)
+Z = MLE(data)
+print(Z)
+colors = plt.cm.rainbow(np.linspace(0, 1, 15))
+for i in range (np.shape(Z)[0]):
+    plt.scatter(Z[i, 0], Z[i, 1], c=colors[i], cmap='jet', label=f'Trajectoire {i+1}')
+plt.legend()
+plt.show()
+"""
