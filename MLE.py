@@ -1,9 +1,7 @@
 import numpy as np
-from sklearn.manifold import MDS
-import pandas as pd
-import matplotlib.pyplot as plt
 
-def distance_graphe(Y):
+
+def distance_graphe(Y: np.matrix) -> np.matrix:
     """
     Calcule la distance entre les noeuds comme le nombre minimal
     d'arêtes entre les noeuds
@@ -24,23 +22,12 @@ def distance_graphe(Y):
     np.fill_diagonal(D, 0)
     return D
 
-def MLE(Y, k=2):
+
+def MLE(Y: np.matrix, dim: int = 2) -> np.matrix:
     """
     Renvoie une liste de point de dimension k correpondant au MLE de la matrice Y
     """
     D = distance_graphe(Y)
-    Z = np.linalg.svd(D)[0][:, :k] # On 
-    Z = Z - np.mean(Z, axis=0) # on centre le nuage de points
+    Z = np.linalg.svd(D)[0][:, :dim]
+    Z = Z - np.mean(Z, axis=0)  # on centre le nuage de points
     return Z
-
-"""
-data = np.loadtxt("data/Florentine_families.csv", delimiter=',')
-
-Z = MLE(data)
-print(Z)
-colors = plt.cm.rainbow(np.linspace(0, 1, 15))
-for i in range (np.shape(Z)[0]):
-    plt.scatter(Z[i, 0], Z[i, 1], c=colors[i], cmap='jet', label=f'Trajectoire {i+1}')
-plt.legend()
-plt.show()
-"""
