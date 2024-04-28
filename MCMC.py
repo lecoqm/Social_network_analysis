@@ -9,6 +9,7 @@ data = np.loadtxt("data/Florentine_families.csv", delimiter=",")
 n = np.shape(data)[0]  # = 15
 
 DIMENSIONS = 2
+SIGMA = 100
 
 
 def test_Z(alpha: float, Z_tilde: np.matrix, Z: np.matrix, Y: np.matrix) -> float:
@@ -16,18 +17,19 @@ def test_Z(alpha: float, Z_tilde: np.matrix, Z: np.matrix, Y: np.matrix) -> floa
     Renvoie la probabilite d'acceptation pour Z
     """
     test = 0
-    for i in range(len(Z)):
-        for j in range(len(Z)):
-            if i != j:
-                eta = alpha - np.linalg.norm(Z[i] - Z[j])
-                eta_tilde = alpha - np.linalg.norm(Z_tilde[i] - Z_tilde[j])
-                test += (
-                    Y[i][j] * eta_tilde
-                    - np.log(1 + np.exp(eta_tilde))
-                    - Y[i][j] * eta
-                    - np.log(1 + np.exp(eta))
-                )
-        test += (np.linalg.norm(Z_tilde[i]) - np.linalg.norm(Z[i])) / 200
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                continue
+            eta = alpha - np.linalg.norm(Z[i] - Z[j])
+            eta_tilde = alpha - np.linalg.norm(Z_tilde[i] - Z_tilde[j])
+            test += (
+                Y[i][j] * eta_tilde
+                - np.log(1 + np.exp(eta_tilde))
+                - Y[i][j] * eta
+                - np.log(1 + np.exp(eta))
+            )
+        test += (np.linalg.norm(Z_tilde[i]) - np.linalg.norm(Z[i])) / (2 * SIGMA)
     return test
 
 
