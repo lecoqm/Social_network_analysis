@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.linalg import orthogonal_procrustes
 
 from MLE import MLE
 
@@ -44,7 +45,7 @@ def test_Z(
                 Y[i][j] * eta_tilde
                 - np.log(1 + np.exp(eta_tilde))
                 - Y[i][j] * eta
-                - np.log(1 + np.exp(eta))
+                + np.log(1 + np.exp(eta))
             )
         log_prob += pi_1(Z_tilde, sigma) - pi_1(Z, sigma)
     return np.exp(log_prob)
