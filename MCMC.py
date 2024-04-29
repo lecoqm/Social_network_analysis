@@ -52,7 +52,7 @@ def test_Z(
 
 
 def test_alpha(
-    alpha_tilde: float, alpha: float, Z: np.matrix, Y: np.matrix, lambd: float = LAMBDA
+    alpha: float, alpha_tilde: float, Z: np.matrix, Y: np.matrix, lambd: float = LAMBDA
 ) -> float:
     """
     Renvoie la probabilite d'acceptation pour alpha
@@ -101,7 +101,7 @@ def MCMC(
     if np.random.random() < prob_Z:
         Z = Z_tilde
 
-    prob_alpha = test_alpha(alpha, alpha, Z, Y, lambd)  # = tout le temps 0 ??
+    prob_alpha = test_alpha(alpha, alpha_tilde, Z, Y, lambd)  # = tout le temps 0 ??
     if np.random.random() < prob_alpha:
         alpha = alpha_tilde
     return alpha, Z
