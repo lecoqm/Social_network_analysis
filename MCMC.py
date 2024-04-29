@@ -73,6 +73,18 @@ def test_alpha(
     log_prob += pi_2(alpha_tilde, lambd) - pi_2(alpha, lambd)
     return np.exp(log_prob)
 
+def log_vraissemblance(alpha, Z):
+    log_vrai = 0
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                continue
+            eta = alpha - np.linalg.norm(Z[i] - Z[j])
+            log_vrai += (
+                + Y[i][j] * eta
+                - np.log(1 + np.exp(eta))
+            )
+
 
 def MCMC(
     alpha: float,
@@ -101,7 +113,7 @@ def MCMC(
     if np.random.random() < prob_Z:
         Z = Z_tilde
 
-    prob_alpha = test_alpha(alpha, alpha_tilde, Z, Y, lambd)  # = tout le temps 0 ??
+    prob_alpha = test_alpha(alpha, alpha_tilde, Z, Y, lambd)
     if np.random.random() < prob_alpha:
         alpha = alpha_tilde
     return alpha, Z
