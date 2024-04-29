@@ -9,16 +9,16 @@ np.random.seed(0)
 LAMBDA = 2
 SIGMA = 100
 DIMENSIONS = 2
-ITERATIONS = 10_000
+ITERATIONS = 1_000_000
 
-SAVE = 100
+SAVE = 1_000
+FREQ = ITERATIONS // SAVE  # = 1_000
 
 data = np.loadtxt("data/Florentine_families.csv", delimiter=",")
 n = np.shape(data)[0]  # = 15
 
-def log_vraissemblance(
-        alpha: float, Z: np.matrix, Y:np.matrix
-) -> float:
+
+def log_vraissemblance(alpha: float, Z: np.matrix, Y: np.matrix) -> float:
     """
     Cette fonction calcule la log vraissemblance pour alpha et Z donnés
     """
@@ -28,10 +28,7 @@ def log_vraissemblance(
             if i == j:
                 continue
             eta = alpha - np.linalg.norm(Z[i] - Z[j])
-            log_vrai += (
-                + Y[i][j] * eta
-                - np.log(1 + np.exp(eta))
-            )
+            log_vrai += Y[i][j] * eta - np.log(1 + np.exp(eta))
     return log_vrai
 
 
@@ -57,30 +54,41 @@ def main(
         if i % freq_save == 0:
             alphas.append(alpha)
             Z_liste.append(Z)
-            log_vraissemblance_liste.append(log_vraissemblance(alpha,Z, Y))
+            log_vraissemblance_liste.append(log_vraissemblance(alpha, Z, Y))
     return alphas, Z_liste, log_vraissemblance_liste
 
 
 if __name__ == "__main__":
     alpha_liste, Z_liste, log_vraissemblance_liste = main(data)
 
-    fig, axis = plt.subplots(1, 3)
+    fig, axes = plt.subplots(2, 2)
 
-    axis[0].plot(log_vraissemblance_liste)
-    axis[0].set_title("Evolution de la log vraissemblance")
+    axes[0, 0].plot(log_vraissemblance_liste)
+    axes[0, 0].set_title("Evolution de la log vraissemblance")
+    axes[0, 0].set_xlabel(f"Iterations (x{FREQ})")
+    axes[0, 0].set_ylabel("Log vraissemblance")
 
-    axis[1].plot(alpha_liste)
-    axis[1].set_title("Evolution de alpha")
+    axes[0, 1].plot(alpha_liste)
+    axes[0, 1].set_title("Evolution de alpha")
+    axes[0, 1].set_xlabel(f"Iterations (x{FREQ})")
+    axes[0, 1].set_ylabel("Alpha")
 
     colors = plt.cm.rainbow(np.linspace(0, 1, n))
     for famille in range(n):
         Z_famille = [Z[famille] for Z in Z_liste]
-        axis[2].scatter(
+        axes[1, 0].scatter(
             [Z[0] for Z in Z_famille],
             [Z[1] for Z in Z_famille],
             label=f"Famille {famille+1}",
             color=colors[famille],
         )
-    axis[2].legend()
-    axis[2].set_title("Projection des familles sur les 2 axes principaux")
+
+    axes[1, 0].set_title("Projection des familles sur les 2 axes principaux")
+    axes[1, 0].set_xticks([])
+    axes[1, 0].set_yticks([])
+
+    axes[1, 1].axis("off")
+    axes[1, 1].legend(*axes[1, 0].get_legend_handles_labels(), ncol=3, loc="center")
+
+    plt.tight_layout()
     plt.show()
