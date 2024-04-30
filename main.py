@@ -40,10 +40,6 @@ def main(
     On initialise Z avec le MLE de Y.
     """
     Z = MLE(Y, DIMENSIONS)
-    for i in range(n):
-        Z[i] = np.random.multivariate_normal(
-            [0 for _ in range(DIMENSIONS)], SIGMA ** (1 / 2) * np.identity(DIMENSIONS)
-        )
     alpha = np.random.exponential(2)
     alphas = [alpha]
     Z_liste = [Z]
